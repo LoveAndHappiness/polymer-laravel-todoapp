@@ -136,15 +136,16 @@
             },
 
             handlePostResponse: function (method) {
-                console.log('Post Request successfully made.');
+                // make get request to get id of posted task
+                this.$.ajaxGet.generateRequest();
             },
 
             handleDeleteResponse: function () {
-                console.log('Delete Request successfully made.');
+
             },
 
             handleUpdateResponse: function () {
-                console.log('Put Request successfully made.');
+
             },
 
         });
