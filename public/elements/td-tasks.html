@@ -1,0 +1,127 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/paper-input/paper-input.html">
+<link rel="import" href="../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../bower_components/paper-card/paper-card.html">
+
+<dom-module id="td-tasks">
+    <template>
+        <style>
+            :host {
+                min-width: 450px;
+                display: flex;
+                flex-direction: column;
+            }
+
+            paper-card {
+                margin-bottom: 20px;
+            }
+            
+        </style>
+
+        <!-- Input Field -->
+        <paper-card heading="Polymer Laravel Todoapp" image="http://www.danforthveterinaryclinic.ca/wp1/wp-content/uploads/2013/08/orange-striped-kitten-300x150.jpg" elevation="1" animated-shadow="false">
+            <div class="card-content">
+                <paper-input 
+                    autofocus
+                    id="addTaskInputField"
+                    label="What needs to be done?"
+                    on-keyup="keyupAction"
+                ></paper-input>         
+            </div>
+        </paper-card>
+
+        <!-- Tasks List -->
+        <template is="dom-if" if="{{tasks.length}}">            
+        <paper-card heading="Tasks List" elevation="1" animated-shadow="true"
+            on-td-edit-item-action="editItemAction"
+            on-td-delete-item-action="destroyItemAction">
+            <div class="card-content">
+                <template is="dom-repeat" items="{{tasks}}">
+                    <td-item item="{{item}}"></td-item>
+                </template>
+            </div>
+        </paper-card>
+        </template>
+
+        <!-- Options  -->
+        <section>
+            <template is="dom-if" if="{{tasks.length}}">
+                <paper-button raised on-tap="completeAll">Complete All</paper-button>
+                <paper-button raised on-tap="clearCompleted">Clear Completed</paper-button>
+            </template>
+        </section>
+
+    </template>
+    <script>
+    var ENTER_KEY = 13;
+    var ESC_KEY = 27;
+
+        Polymer({
+            is: 'td-tasks',
+
+            properties: {
+                tasks: {
+                    type: Array,
+                    notify: true
+                },
+                model: {
+                    type: Object,
+                },
+                modelId: {
+                    type: String
+                }
+            },
+
+            attached: function () {
+                this.model = document.querySelector('#' + this.modelId);
+            },
+
+            keyupAction: function (e) {
+                if (e.keyCode === ENTER_KEY) {
+                    this.addTaskAction();
+                } else if (e.keyCode === ESC_KEY) {
+                    this.cancelAddTaskAction();
+                }
+            },
+
+            addTaskAction: function () {
+                var title = this.querySelector('#addTaskInputField').value;
+
+                this.model.addTask(title);
+
+                this.querySelector('#addTaskInputField').value = '';
+            },
+
+            cancelAddTaskAction: function () {
+                this.querySelector('#addTaskInputField').value = '';
+            },
+
+            destroyItemAction: function (e, details) {
+                this.model.destroyItem(details);
+            },
+
+            editItemAction: function (e, details) {
+                this.model.editItem(details);
+            },
+
+            completeAll: function () {
+                var that = this;
+                this.tasks.forEach(function (task) {
+                    var i = that.tasks.indexOf(task);
+                    that.set(['tasks', i, 'completed'], true);
+                });
+
+                console.log('I did it');
+                this.model.completeAll();
+            },
+
+            clearCompleted: function () {
+                this.tasks = this.tasks.filter(function (task) {
+                    return ! task.completed;
+                });
+
+                this.model.clearCompleted();
+            }
+        });
+    </script>
+</dom-module>

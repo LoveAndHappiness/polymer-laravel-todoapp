@@ -1,0 +1,152 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-ajax/iron-ajax.html">
+
+<dom-module id="td-model">
+    <template>
+        <iron-ajax
+             id="ajaxGet"
+             auto
+             method="GET"
+             contentType="application/json"
+             url="http://laravel8.dev/tasks"
+             headers="{{csrfTokenHeaders}}"
+             handle-as="json"
+             on-response="handleGetResponse"></iron-ajax>
+
+        <iron-ajax
+             id="ajaxPost"
+             method="POST"
+             content-type="application/json"
+             url="http://laravel8.dev/tasks"
+             headers="{{csrfTokenHeaders}}"
+             handle-as="json"
+             on-response="handlePostResponse"></iron-ajax>
+
+        <iron-ajax
+             id="ajaxDelete"
+             method="DELETE"
+             content-type="application/json"
+             url="{{ajaxTaskUrl}}"
+             headers="{{csrfTokenHeaders}}"
+             handle-as="json"
+             on-response="handleDeleteResponse"></iron-ajax>
+
+        <iron-ajax
+             id="ajaxUpdate"
+             method="PUT"
+             content-type="application/json"
+             url="{{ajaxTaskUrl}}"
+             headers="{{csrfTokenHeaders}}"
+             handle-as="json"
+             on-response="handleUpdateResponse"></iron-ajax>
+
+        <iron-ajax
+             id="ajaxCompleteAll"
+             method="POST"
+             content-type="application/json"
+             url="http://laravel8.dev/tasks/complete-all"
+             headers="{{csrfTokenHeaders}}"
+             handle-as="json"></iron-ajax>
+
+        <iron-ajax
+             id="ajaxClearCompleted"
+             method="POST"
+             content-type="application/json"
+             url="http://laravel8.dev/tasks/clear-completed"
+             headers="{{csrfTokenHeaders}}"
+             handle-as="json"></iron-ajax>
+
+    </template>
+    <script>
+        Polymer({
+            is: 'td-model',
+
+            properties: {
+                tasks: {
+                    type: Array,
+                    notify: true
+                },
+                csrfToken: {
+                    type: String,
+                    value: document.querySelector('#token').getAttribute('value')
+                },
+                csrfTokenHeaders: {
+                    type: Object,
+                    computed: 'computeTokenHeaders(csrfToken)'
+                },
+                taskId: {
+                    type: String
+                },
+                ajaxTaskUrl: {
+                    type: String
+                }
+            },
+
+            addTask: function (title) {
+                title = String(title).trim();
+
+                if (!title) {
+                    return;
+                }
+
+                var object = { title: title, completed: false };
+
+                this.push('tasks', object);
+
+                // ajax request
+                console.log(object);
+                this.$.ajaxPost.body = object;
+                this.$.ajaxPost.generateRequest();
+            },
+
+            destroyItem: function (task) {
+                var i = this.tasks.indexOf(task);
+
+                this.splice('tasks', i, 1);
+
+                // ajax request
+                this.ajaxTaskUrl = 'http://laravel8.dev/tasks/' + task.id;
+                this.$.ajaxDelete.generateRequest();
+            },
+
+            editItem: function (task) {
+                // logic in td-item
+
+                // ajax request
+                this.ajaxTaskUrl = 'http://laravel8.dev/tasks/' + task.id;
+                this.$.ajaxUpdate.body = task;
+                this.$.ajaxUpdate.generateRequest();
+            },
+
+            completeAll: function () {
+                this.$.ajaxCompleteAll.generateRequest();
+            },
+
+            clearCompleted: function () {
+                this.$.ajaxClearCompleted.generateRequest();
+            },
+
+            computeTokenHeaders: function (csrfToken) {
+                return {'X-CSRF-Token': csrfToken};  
+            },
+
+            handleGetResponse: function (event, d) {
+                this.tasks = event.detail.response;
+                console.log('Get Request successfully made.');
+            },
+
+            handlePostResponse: function (method) {
+                console.log('Post Request successfully made.');
+            },
+
+            handleDeleteResponse: function () {
+                console.log('Delete Request successfully made.');
+            },
+
+            handleUpdateResponse: function () {
+                console.log('Put Request successfully made.');
+            },
+
+        });
+    </script>
+</dom-module>

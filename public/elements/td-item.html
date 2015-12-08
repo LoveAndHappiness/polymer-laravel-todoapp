@@ -1,0 +1,121 @@
+<link rel="import" href="../bower_components/polymer/polymer.html">
+<link rel="import" href="../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../bower_components/paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../bower_components/paper-item/paper-item.html">
+
+<dom-module id="td-item">
+    <template>
+        <style>
+            :host {
+                display: block;
+            }
+
+            .Item {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+            }
+
+            .Item__title {
+                flex: 1;
+            }
+
+            paper-input {
+                flex: 1;
+            }
+        </style>
+
+        <section>
+            <template is="dom-if" if="{{!editing}}">
+                <section class="Item">
+                    <paper-checkbox checked="{{item.completed::change}}" on-change="toggleTaskCompletion"></paper-checkbox>
+                    <paper-item class="Item__title">{{item.title}}</paper-item>
+                    <paper-icon-button icon="create" on-tap="editItemAction"></paper-icon-button>
+                    <paper-icon-button icon="clear" on-tap="deleteItemAction"></paper-icon-button>
+                </section>
+            </template>
+
+            <template is="dom-if" if="{{editing}}">
+                <section class="Item">
+                    <paper-checkbox checked="{{item.completed::change}}" on-change="toggleTaskCompletion" disabled></paper-checkbox>
+                    <paper-item class="Item__title">
+                        <paper-input 
+                            id="editItemInputField"
+                            no-label-float 
+                            value="{{editingValue::input}}"
+                            on-keyup="editKeyupAction"
+                            on-blur="doneEdit"
+                        ></paper-input>
+                    </paper-item>
+                    <paper-icon-button icon="check" on-tap="doneEdit"></paper-icon-button>
+                </section>
+            </template>
+        </section>
+        
+
+    </template>
+    <script>
+        Polymer({
+            is: 'td-item',
+
+            properties: {
+                item: {
+                    type: Object,
+                    notify: true
+                },
+                editing: {
+                    type: Boolean,
+                    value: false
+                }
+            },
+
+            deleteItemAction: function () {
+                this.fire('td-delete-item-action', this.item);
+            },
+
+            editItemAction: function () {
+                // set editing to true
+                this.editing = true;
+
+                this.editingValue = this.item.title;
+
+                // focus on the input field
+                var that = this;
+                setTimeout(function () {
+                    that.querySelector('#editItemInputField').$.input.focus();
+                }, 1);
+            },
+
+            editKeyupAction: function (e) {
+                if (e.keyCode === ENTER_KEY) {
+                    this.doneEdit();
+                } else if (e.keyCode === ESC_KEY) {
+                    this.cancelEdit();
+                }
+            },
+
+            doneEdit: function () {
+                if (this.editing) {
+                    this.editing = false;
+
+                    this.set('item.title', this.editingValue.trim());
+
+                    if (!this.item.title) {
+                        return this.deleteItemAction();
+                    }
+            
+                    this.fire('td-edit-item-action', this.item);
+                }
+            },
+
+            cancelEdit: function () {
+                this.editing = false;
+            },
+
+            toggleTaskCompletion: function () {
+                this.fire('td-edit-item-action', this.item);
+            }
+        });
+    </script>
+</dom-module>
