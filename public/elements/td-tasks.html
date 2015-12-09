@@ -2,6 +2,7 @@
 <link rel="import" href="../bower_components/paper-input/paper-input.html">
 <link rel="import" href="../bower_components/paper-button/paper-button.html">
 <link rel="import" href="../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../bower_components/paper-spinner/paper-spinner.html">
 
 <dom-module id="td-tasks">
     <template>
@@ -29,6 +30,10 @@
                 ></paper-input>         
             </div>
         </paper-card>
+
+        <div class="spinner" style="display:flex; justify-content:center">
+            <paper-spinner active="{{loading}}"></paper-spinner>
+        </div>
 
         <!-- Tasks List -->
         <template is="dom-if" if="{{tasks.length}}">            
@@ -69,6 +74,9 @@
                 },
                 modelId: {
                     type: String
+                },
+                loading: {
+                    type: Boolean
                 }
             },
 

@@ -3,12 +3,14 @@
 
 <dom-module id="td-model">
     <template>
+
         <iron-ajax
              id="ajaxGet"
              auto
              method="GET"
+             loading="{{loading}}"
              contentType="application/json"
-             url="http://laravel8.dev/tasks"
+             url="http://laravel4.dev/tasks"
              headers="{{csrfTokenHeaders}}"
              handle-as="json"
              on-response="handleGetResponse"></iron-ajax>
@@ -17,7 +19,7 @@
              id="ajaxPost"
              method="POST"
              content-type="application/json"
-             url="http://laravel8.dev/tasks"
+             url="http://laravel4.dev/tasks"
              headers="{{csrfTokenHeaders}}"
              handle-as="json"
              on-response="handlePostResponse"></iron-ajax>
@@ -44,7 +46,7 @@
              id="ajaxCompleteAll"
              method="POST"
              content-type="application/json"
-             url="http://laravel8.dev/tasks/complete-all"
+             url="http://laravel4.dev/tasks/complete-all"
              headers="{{csrfTokenHeaders}}"
              handle-as="json"></iron-ajax>
 
@@ -52,7 +54,7 @@
              id="ajaxClearCompleted"
              method="POST"
              content-type="application/json"
-             url="http://laravel8.dev/tasks/clear-completed"
+             url="http://laravel4.dev/tasks/clear-completed"
              headers="{{csrfTokenHeaders}}"
              handle-as="json"></iron-ajax>
 
@@ -79,6 +81,10 @@
                 },
                 ajaxTaskUrl: {
                     type: String
+                },
+                loading: {
+                    type: Boolean,
+                    notify: true
                 }
             },
 
@@ -105,7 +111,7 @@
                 this.splice('tasks', i, 1);
 
                 // ajax request
-                this.ajaxTaskUrl = 'http://laravel8.dev/tasks/' + task.id;
+                this.ajaxTaskUrl = 'http://laravel4.dev/tasks/' + task.id;
                 this.$.ajaxDelete.generateRequest();
             },
 
@@ -113,7 +119,7 @@
                 // logic in td-item
 
                 // ajax request
-                this.ajaxTaskUrl = 'http://laravel8.dev/tasks/' + task.id;
+                this.ajaxTaskUrl = 'http://laravel4.dev/tasks/' + task.id;
                 this.$.ajaxUpdate.body = task;
                 this.$.ajaxUpdate.generateRequest();
             },
@@ -136,18 +142,9 @@
             },
 
             handlePostResponse: function (method) {
-                // make get request to get id of posted task
+                // Make get request to get id of tasks
                 this.$.ajaxGet.generateRequest();
-            },
-
-            handleDeleteResponse: function () {
-
-            },
-
-            handleUpdateResponse: function () {
-
-            },
-
+            }
         });
     </script>
 </dom-module>
